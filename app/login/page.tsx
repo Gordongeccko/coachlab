@@ -1,4 +1,4 @@
-"use client";
+Ôªø"use client";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -22,13 +22,13 @@ export default function LoginPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "NÂgot gick fel");
+        setError(data.error || "N√•got gick fel");
         return;
       }
     }
     const result = await signIn("credentials", { email, password, redirect: false });
     if (result?.error) {
-      setError("Fel email eller lˆsenord");
+      setError("Fel email eller l√∂senord");
     } else {
       router.push("/");
     }
@@ -61,7 +61,7 @@ export default function LoginPage() {
           />
           <input
             type="password"
-            placeholder="Lˆsenord"
+            placeholder="L√∂senord"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full border rounded-lg px-4 py-2"
@@ -85,7 +85,7 @@ export default function LoginPage() {
             onClick={() => signIn("google", { callbackUrl: "/" })}
             className="mt-4 w-full border border-gray-300 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
           >
-            Forts‰tt med Google
+            Forts√§tt med Google
           </button>
         </div>
         <p className="mt-6 text-center text-sm text-gray-600">
