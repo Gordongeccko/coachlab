@@ -4,7 +4,7 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    serverExternalPackages: ["@prisma/client", "@prisma/adapter-libsql", "@libsql/client"],
+    serverComponentsExternalPackages: ["@prisma/client", "@prisma/adapter-libsql", "@libsql/client"],
   },
 };
 
