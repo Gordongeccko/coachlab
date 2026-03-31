@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
 
 function parseImages(raw: unknown): string[] {
   if (Array.isArray(raw)) return raw as string[];
@@ -62,7 +63,13 @@ function serializeSession(session: {
 }
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const sessions = await db.session.findMany({
+    where: { userId: session.user.id },
     include: {
       sessionExercises: {
         include: { exercise: true },
@@ -76,20 +83,25 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await request.json();
 
-  // Support both old format (exerciseIds[]) and new format (exercises[{id, notes, duration, level}])
   const exerciseItems: Array<{ id: string; notes?: string | null; duration?: number | null; level?: string | null }> =
     body.exercises ??
     ((body.exerciseIds as string[]) ?? []).map((id: string) => ({ id }));
 
-  const session = await db.session.create({
+  const created = await db.session.create({
     data: {
       name: body.name ?? "Untitled Session",
       notes: body.notes ?? null,
       players: body.players ?? 10,
       pitchSize: body.pitchSize ?? "Full",
       duration: body.duration ?? null,
+      userId: session.user.id,
       sessionExercises: {
         create: exerciseItems.map((item, i) => ({
           exerciseId: item.id,
@@ -108,5 +120,5 @@ export async function POST(request: NextRequest) {
     },
   });
 
-  return NextResponse.json(serializeSession(session));
+  return NextResponse.json(serializeSession(created));
 }

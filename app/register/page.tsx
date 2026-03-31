@@ -2,15 +2,13 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
 
-function LoginForm() {
+export default function RegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,6 +19,17 @@ function LoginForm() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, password }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      setError(data.error || "Något gick fel");
+      setLoading(false);
+      return;
+    }
     const result = await signIn("credentials", {
       email,
       password,
@@ -28,15 +37,15 @@ function LoginForm() {
     });
     setLoading(false);
     if (result?.error) {
-      setError("Fel email eller lösenord");
+      setError("Kontot skapades men inloggningen misslyckades");
     } else {
-      router.push(callbackUrl);
+      router.push("/");
     }
   }
 
   async function handleGoogle() {
     setGoogleLoading(true);
-    await signIn("google", { callbackUrl });
+    await signIn("google", { callbackUrl: "/" });
   }
 
   return (
@@ -62,8 +71,8 @@ function LoginForm() {
               <line x1="12" y1="6" x2="12" y2="18" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-ink-primary">Logga in</h1>
-          <p className="text-sm text-ink-muted mt-1">Fortsatt till CoachLab</p>
+          <h1 className="text-2xl font-bold text-ink-primary">Skapa konto</h1>
+          <p className="text-sm text-ink-muted mt-1">Kom igång med CoachLab</p>
         </div>
 
         {/* Card */}
@@ -92,7 +101,7 @@ function LoginForm() {
                 fill="#EA4335"
               />
             </svg>
-            {googleLoading ? "Ansluter..." : "Fortsatt med Google"}
+            {googleLoading ? "Ansluter..." : "Registrera med Google"}
           </button>
 
           {/* Divider */}
@@ -109,6 +118,19 @@ function LoginForm() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-ink-secondary mb-1.5">
+                Namn
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ditt namn"
+                required
+                className="w-full bg-surface-3 border border-border rounded-xl px-3.5 py-2.5 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-colors"
+              />
+            </div>
             <div>
               <label className="block text-xs font-medium text-ink-secondary mb-1.5">
                 Email
@@ -131,9 +153,11 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                minLength={8}
                 required
                 className="w-full bg-surface-3 border border-border rounded-xl px-3.5 py-2.5 text-sm text-ink-primary placeholder:text-ink-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 transition-colors"
               />
+              <p className="text-xs text-ink-muted mt-1.5">Minst 8 tecken</p>
             </div>
 
             {error && (
@@ -162,29 +186,21 @@ function LoginForm() {
               disabled={loading}
               className="w-full bg-accent hover:bg-accent-light text-accent-fg font-semibold text-sm py-2.5 rounded-xl transition-colors disabled:opacity-50 mt-1"
             >
-              {loading ? "Loggar in..." : "Logga in"}
+              {loading ? "Skapar konto..." : "Skapa konto"}
             </button>
           </form>
         </div>
 
         <p className="text-center text-sm text-ink-muted mt-5">
-          Inget konto?{" "}
+          Har du redan ett konto?{" "}
           <Link
-            href="/register"
+            href="/login"
             className="text-accent-light font-medium hover:text-accent-fg transition-colors"
           >
-            Skapa konto
+            Logga in
           </Link>
         </p>
       </div>
     </div>
-  );
-}
-
-export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
   );
 }

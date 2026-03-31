@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
 function parseImages(raw: unknown): string[] {
@@ -10,7 +12,11 @@ function parseImages(raw: unknown): string[] {
 }
 
 export default async function SessionsPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login?callbackUrl=/sessions");
+
   const sessions = await db.session.findMany({
+    where: { userId: session.user.id },
     include: {
       sessionExercises: {
         include: { exercise: true },
@@ -51,8 +57,7 @@ export default async function SessionsPage() {
           {sessions.map((s) => {
             const catSet = new Set(s.sessionExercises.map((se) => se.exercise.category).filter(Boolean));
             const cats = Array.from(catSet);
-            const img = s.sessionExercises.find((se) => parseImages(se.exercise.images).length > 0)
-              ?.exercise;
+            const img = s.sessionExercises.find((se) => parseImages(se.exercise.images).length > 0)?.exercise;
             const firstImg = img ? parseImages(img.images)[0] : null;
             return (
               <Link

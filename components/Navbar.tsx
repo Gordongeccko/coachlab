@@ -1,18 +1,10 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import clsx from "clsx";
+import { auth } from "@/auth";
+import { NavbarUserMenu, NavbarLoginButton } from "./NavbarAuth";
+import NavLinks from "./NavLinks";
 
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/library", label: "Library" },
-  { href: "/planner", label: "Planner" },
-  { href: "/sessions", label: "Pass" },
-];
-
-export default function Navbar() {
-  const pathname = usePathname();
+export default async function Navbar() {
+  const session = await auth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface-2 border-b border-border">
@@ -42,26 +34,13 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-1">
-          {links.map((link) => {
-            const active =
-              link.href === "/"
-                ? pathname === "/"
-                : pathname.startsWith(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={clsx(
-                  "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  active
-                    ? "bg-surface-3 text-ink-primary"
-                    : "text-ink-secondary hover:text-ink-primary hover:bg-surface-3"
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
+          <NavLinks />
+          <div className="w-px h-5 bg-border mx-2" />
+          {session?.user ? (
+            <NavbarUserMenu user={session.user} />
+          ) : (
+            <NavbarLoginButton />
+          )}
         </div>
       </div>
     </nav>
