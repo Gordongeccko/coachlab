@@ -1,5 +1,15 @@
-export { auth as middleware } from "@/auth";
+import { auth } from "@/auth";
+import { NextResponse } from "next/server";
+
+export default auth((req) => {
+  if (!req.auth) {
+    const loginUrl = new URL("/login", req.url);
+    loginUrl.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+  return NextResponse.next();
+});
 
 export const config = {
-  matcher: ["/planner/:path*", "/sessions/:path*"],
+  matcher: ["/planner/:path*", "/sessions/:path*", "/profile/:path*"],
 };
