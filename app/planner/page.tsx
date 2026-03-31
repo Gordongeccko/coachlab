@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import PlannerBoard from "@/components/PlannerBoard";
 import { Exercise, Session } from "@/lib/types";
 
-export default function PlannerPage() {
+function PlannerPage() {
   const searchParams = useSearchParams();
   const loadId = searchParams.get("load");
 
@@ -80,5 +80,15 @@ export default function PlannerPage() {
         onSessionSaved={(s) => setSessions((prev) => [s, ...prev])}
       />
     </div>
+  );
+}
+
+
+import { Suspense } from "react";
+export default function PlannerPageWrapper() {
+  return (
+    <Suspense>
+      <PlannerPage />
+    </Suspense>
   );
 }
