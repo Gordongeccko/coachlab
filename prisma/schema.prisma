@@ -1,0 +1,52 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Exercise {
+  id           String   @id @default(cuid())
+  title        String
+  vad          String
+  varfor       String
+  hur          String
+  organisation String
+  anvisningar  String
+  images       Json     @default("[]")
+  videoUrl     String?
+  source       String   @default("SVFF")
+  verified     Boolean  @default(true)
+  category     String   @default("")
+  subcategory  String   @default("")
+  exerciseType String   @default("")
+  createdAt    DateTime @default(now())
+  sessionExercises SessionExercise[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  name      String
+  notes     String?
+  players   Int      @default(10)
+  pitchSize String   @default("Full")
+  duration  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sessionExercises SessionExercise[]
+}
+
+model SessionExercise {
+  id         String   @id @default(cuid())
+  order      Int
+  notes      String?
+  duration   Int?
+  level      String?
+  session    Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  sessionId  String
+  exercise   Exercise @relation(fields: [exerciseId], references: [id])
+  exerciseId String
+}
