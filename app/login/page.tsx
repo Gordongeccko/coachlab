@@ -9,6 +9,7 @@ const AUTH_ERRORS: Record<string, string> = {
   OAuthSignin: "Kunde inte starta Google-inloggning",
   OAuthCallback: "Fel vid Google-inloggning",
   OAuthCreateAccount: "Kunde inte skapa konto via Google",
+  OAuthAccountNotLinked: "Den här emailen är redan registrerad med email/lösenord — logga in så länkas kontona",
   Callback: "Något gick fel vid inloggning",
   CredentialsSignin: "Fel email eller lösenord",
   SessionRequired: "Du måste vara inloggad",
