@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { readFileSync, readdirSync, statSync } from "fs";
 import { resolve, join } from "path";
 
@@ -8,7 +8,7 @@ const url =
   process.env.TURSO_DATABASE_URL ??
   `file:${resolve(process.cwd(), "dev.db")}`;
 const authToken = process.env.TURSO_AUTH_TOKEN;
-const adapter = new PrismaLibSql({ url, authToken });
+const adapter = new PrismaLibSQL({ url, authToken });
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = new PrismaClient({ adapter } as any);
 
